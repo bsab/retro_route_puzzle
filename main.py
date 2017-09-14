@@ -21,16 +21,16 @@ class RetroRoutePuzzle():
         self.__set_map_on_graph()
 
     def __load_map_from_file(self):
+        """Carico il file json contentente la struttura della mappa in un dizionario"""
         try:
-            #carico il file che contiene il json in memoria
             with open(self.__map_file_name) as data_file:
                 self.__map_dict = json.load(data_file);
         except Exception as e:
             logger.error('Cannot load map from file', exc_info=True)
 
     def __set_map_on_graph(self):
-        #creo un grafo orientato (digraph) a  partire dalla mappa json
-
+        """A partire dal dizionario appena creato, definisco uno grafo orientato (digraph)
+        utilizzando le room come nodi e le cardinalita' per l'associazione fra nodi."""
         try:
             for room in self.__map_dict['rooms']:
                 # aggiungo i nodi al grafo
@@ -47,11 +47,11 @@ class RetroRoutePuzzle():
             logger.error('Cannot setup map on graph', exc_info=True)
 
     def show_map_structure(self):
-        print "---------------------------"
-        print self.__map_graph.graph
-        print self.__map_graph.nodes(data=True)
-        print self.__map_graph.edges()
-        print "---------------------------"
+        logger.debug("---------------------------")
+        logger.debug(self.__map_graph.graph)
+        logger.debug(self.__map_graph.nodes(data=True))
+        logger.debug(self.__map_graph.edges())
+        logger.debug("---------------------------")
 
     def __get_row(self, room_id):
         room_name = self.__map_graph.node[room_id]['name']
@@ -62,6 +62,13 @@ class RetroRoutePuzzle():
         return room_name, room_object
 
     def run_routing(self, start_room_id, objects_to_collect):
+        """
+        L'algoritmo termina quando ha esaminato tutti i nodei del grafo oppure
+        quando ha collezionato tutti gli elementi richiesti.
+        :param start_room_id:
+        :param objects_to_collect:
+        :return:
+        """
         try:
             #seguo tutti i percorsi raggiungibili dal nodo X
 
