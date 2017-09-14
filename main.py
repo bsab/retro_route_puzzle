@@ -21,22 +21,30 @@ class RetroRoutePuzzle():
         self.__set_map_on_graph()
 
     def __load_map_from_file(self):
-        #carico il file che contiene il json in memoria
-        with open(self.__map_file_name) as data_file:
-            self.__map_dict = json.load(data_file);
+        try:
+            #carico il file che contiene il json in memoria
+            with open(self.__map_file_name) as data_file:
+                self.__map_dict = json.load(data_file);
+        except Exception as e:
+            logger.error('Cannot load map from file', exc_info=True)
 
     def __set_map_on_graph(self):
         #creo un grafo orientato (digraph) a  partire dalla mappa json
 
-        for room in self.__map_dict['rooms']:
-            self.__map_graph.add_node(room['id'],
-                                      name=room['name'],
-                                      objects=room['objects'])
+        try:
+            for room in self.__map_dict['rooms']:
+                # aggiungo i nodi al grafo
+                self.__map_graph.add_node(room['id'],
+                                          name=room['name'],
+                                          objects=room['objects'])
 
-            for room_dir in directions:
-                if room.has_key(room_dir):
-                    next_room=room[room_dir]
-                    self.__map_graph.add_edge(room['id'], next_room, dir=room_dir)
+                # leggendo le direzioni, aggiungo li archi fra un nodo e l'altro
+                for room_dir in directions:
+                    if room.has_key(room_dir):
+                        next_room=room[room_dir]
+                        self.__map_graph.add_edge(room['id'], next_room, dir=room_dir)
+        except Exception as e:
+            logger.error('Cannot setup map on graph', exc_info=True)
 
     def show_map_structure(self):
         print "---------------------------"
@@ -45,27 +53,63 @@ class RetroRoutePuzzle():
         print self.__map_graph.edges()
         print "---------------------------"
 
-    def run_routing(self, start_room_id):
-        #seguo tutti i percorsi raggiungibili dal nodo X
+    def __get_row(self, room_id):
+        room_name = self.__map_graph.node[room_id]['name']
+        room_object=None
+        if len(self.__map_graph.node[room_id]['objects'])>0:
+            room_object = self.__map_graph.node[room_id]['objects'][0]['name']
 
-        # eseguo una BFS sul grafo inserendo in una lista tutti gli edge
-        # stampo per ogni nodo dell'edge nella lista di cui sopra le info
-        #
-        print "ID Room Object collected"
-        print "---------------------------"
+        return room_name, room_object
 
-        edge_routing = list(nx.bfs_edges(self.__map_graph, start_room_id))
-        for (room_from, room_to) in edge_routing:
-            print room_from, " ", self.__map_graph.node[room_from]['name'], " ", self.__map_graph.node[room_from]['objects']
-            print room_to, " ", self.__map_graph.node[room_to]['name'], " ", self.__map_graph.node[room_to]['objects']
+    def run_routing(self, start_room_id, objects_to_collect):
+        try:
+            #seguo tutti i percorsi raggiungibili dal nodo X
 
+            # eseguo una BFS sul grafo inserendo in una lista tutti gli edge
+            # stampo per ogni nodo dell'edge nella lista di cui sopra le info
+            #
+            print "ID Room Object collected"
+            print objects_to_collect
+            print "---------------------------"
+
+            edge_routing = list(nx.bfs_edges(self.__map_graph, start_room_id))
+            for (room_from, room_to) in edge_routing:
+                #room from
+                room_name, room_object = self.__get_row(room_from)
+                print room_from, " ", room_name, " ", room_object
+                if room_object:
+                    #print 'popping ', room_object, '...'
+                    objects_to_collect.pop(objects_to_collect.index(room_object))
+                    if not objects_to_collect:
+                        break;
+
+                #room to
+                room_name, room_object = self.__get_row(room_to)
+                print room_to, " ", room_name, " ", room_object
+                if room_object:
+                    #print 'popping ', room_object, '...'
+                    objects_to_collect.pop(objects_to_collect.index(room_object))
+                    if not objects_to_collect:
+                        break;
+
+            print "AFTER ID Room Object collected"
+            print objects_to_collect
+            print "---------------------------"
+
+        except Exception as e:
+            logger.error('Cannot run algorithm map on graph', exc_info=True)
 
 if __name__ == "__main__":
 
-    retro_route_puzzle = RetroRoutePuzzle('data.json')
+    # definisco la struttura dati
+    map_file_name='data.json'
+    retro_route_puzzle = RetroRoutePuzzle(map_file_name)
 
+    # stampo la struttura dati
     retro_route_puzzle.show_map_structure()
 
+    # eseguo l'algoritmo
     start_room_id=4
-    retro_route_puzzle.run_routing(start_room_id)
+    objects_to_collect=['Knife', 'Potted Plant', 'Pillow']
+    retro_route_puzzle.run_routing(start_room_id, objects_to_collect)
 
