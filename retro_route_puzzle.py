@@ -102,9 +102,16 @@ class RetroRoutePuzzle():
         le info del nodo.
         """
 
-        if not self.__map_graph:
+        if start_room_id<=0:
+            logger.error('Cannot run algorithm on map. The start room ID is not valid', exc_info=False)
+            return False
+        elif not self.__map_graph:
             logger.error('Cannot run algorithm on map. The map is None', exc_info=False)
             return False
+        elif not objects_to_collect:
+            logger.error('Cannot run algorithm on map. No objects to collects', exc_info=False)
+            return False
+
         try:
             print "ID Room Object collected"
             print "---------------------------"
