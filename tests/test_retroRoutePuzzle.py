@@ -37,6 +37,6 @@ class TestRetroRoutePuzzle(TestCase):
 
     def test_navigate_and_collect_ok(self):
         map_file_name = 'data.json'
-        objects_to_collect = ['Knife', 'Potted Plant', 'Pillow']
+        oc = ['Knife', 'Potted Plant', 'Pillow']
         rrp = RetroRoutePuzzle(map_file_name)
-        self.assertEqual(False, rrp.navigate_and_collect(1, objects_to_collect))
+        self.assertEqual(None, rrp.navigate_and_collect(1, oc))

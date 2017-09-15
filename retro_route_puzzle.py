@@ -78,7 +78,7 @@ class RetroRoutePuzzle():
             print "MAP GRAPH IS NONE"
         print "---------------------------"
 
-    def __collect_room_object(self, room_id):
+    def __collect_room_object(self, room_id, objects_to_collect):
         """controllo che nel nodo (ovvero la room) siano presenti oggetti
         da collezionare, in caso positivo elimino l'oggetto dalla lista
         objects_to_collect"""
@@ -87,7 +87,7 @@ class RetroRoutePuzzle():
         if len(self.__map_graph.node[room_id]['objects'])>0:
             room_object = self.__map_graph.node[room_id]['objects'][0]['name']
             if room_object in objects_to_collect:
-                print '*****popping ', room_object, '...'
+                #print '*****popping ', room_object, '...'
                 objects_to_collect.pop(objects_to_collect.index(room_object))
 
         return room_object
@@ -121,13 +121,13 @@ class RetroRoutePuzzle():
             for (room_from, room_to) in edge_routing:
 
                 room_name = self.__map_graph.node[room_from]['name']
-                room_object = self.__collect_room_object(room_from)
+                room_object = self.__collect_room_object(room_from, objects_to_collect)
                 print room_from, " ", room_name, " ", room_object
                 if not objects_to_collect:
                     break;
 
                 room_name = self.__map_graph.node[room_to]['name']
-                room_object = self.__collect_room_object(room_to)
+                room_object = self.__collect_room_object(room_to, objects_to_collect)
                 print room_to, " ", room_name, " ", room_object
                 if not objects_to_collect:
                     break;
@@ -148,12 +148,12 @@ if __name__ == "__main__":
     retro_route_puzzle.show_map_structure()
 
     # eseguo l'algoritmo
-    start_room_id=4
-    objects_to_collect=['Knife', 'Potted Plant', 'Pillow']
+    room_id=4
+    obj_to_collect=['Knife', 'Potted Plant', 'Pillow']
 
-    retro_route_puzzle.navigate_and_collect(start_room_id, objects_to_collect)
+    retro_route_puzzle.navigate_and_collect(room_id, obj_to_collect)
 
     print "Room Object remain to collect:"
-    print objects_to_collect
+    print obj_to_collect
 
 
