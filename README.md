@@ -6,3 +6,11 @@ Write a program that will output a valid route one could follow to collect all s
 exercize starts with an input of:
 json reppresentation of map starting room
 list of object to collect
+
+### Example ###
+Input Start Room ID: 4
+
+Input Objects To Collect: Knife, Potted Plant, Pillow
+```
+python retro_route_puzzle.py data.json 4 "knife" "Potted Plant" "Pillow"
+```

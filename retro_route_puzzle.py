@@ -1,4 +1,5 @@
 #https://networkx.github.io/documentation/networkx-1.10/tutorial/tutorial.html#directed-graphs
+import sys
 import json
 import logging
 import networkx as nx
@@ -71,6 +72,7 @@ class RetroRoutePuzzle():
     def show_map_structure(self):
         print "---------------------------"
         if self.__map_graph:
+            print "MAP GRAPH:", self.__map_graph
             print "MAP GRAPH:", self.__map_graph.graph
             print "MAP NODES:", self.__map_graph.nodes(data=True)
             print "MAP EDGES:", self.__map_graph.edges()
@@ -115,9 +117,7 @@ class RetroRoutePuzzle():
         try:
             print "ID Room Object collected"
             print "---------------------------"
-
             edge_routing = list(nx.bfs_edges(self.__map_graph, start_room_id))
-            #print "edge_routing--->", edge_routing
             for (room_from, room_to) in edge_routing:
 
                 room_name = self.__map_graph.node[room_from]['name']
@@ -138,22 +138,47 @@ class RetroRoutePuzzle():
             logger.error('Cannot run algorithm map on graph', exc_info=True)
             return False
 
+    def execute_example(self):
+        # definisco la struttura dati
+        map_file_name='data.json'
+        retro_route_puzzle = RetroRoutePuzzle(map_file_name)
+
+        # stampo la struttura dati
+        retro_route_puzzle.show_map_structure()
+
+        # eseguo l'algoritmo
+        room_id=4
+        obj_to_collect=['Knife', 'Potted Plant', 'Pillow']
+
+        retro_route_puzzle.navigate_and_collect(room_id, obj_to_collect)
+
+        print "Room Object remain to collect:"
+        print obj_to_collect
+
+#
+# >>> python retro_route_puzzle.py data.json 4 "knife" "Potted Plant" "Pillow"
+#
+def main():
+    try:
+        map_file_name = sys.argv[1]
+        room_id = int(sys.argv[2])
+
+        obj_to_collect = []
+        for item in sys.argv[3:]:
+            if item:
+                obj_to_collect.append(item)
+
+        retro_route_puzzle = RetroRoutePuzzle(map_file_name)
+        # stampo la struttura dati
+        retro_route_puzzle.show_map_structure()
+
+        retro_route_puzzle.navigate_and_collect(room_id, obj_to_collect)
+
+        print "Room Object remain to collect:"
+        print obj_to_collect
+    except IndexError:
+        logger.error('Cannot run program. No such parameters', exc_info=True)
+
+
 if __name__ == "__main__":
-
-    # definisco la struttura dati
-    map_file_name='data.json'
-    retro_route_puzzle = RetroRoutePuzzle(map_file_name)
-
-    # stampo la struttura dati
-    retro_route_puzzle.show_map_structure()
-
-    # eseguo l'algoritmo
-    room_id=4
-    obj_to_collect=['Knife', 'Potted Plant', 'Pillow']
-
-    retro_route_puzzle.navigate_and_collect(room_id, obj_to_collect)
-
-    print "Room Object remain to collect:"
-    print obj_to_collect
-
-
+    main()
